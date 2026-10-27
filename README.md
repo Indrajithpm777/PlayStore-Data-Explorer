@@ -113,6 +113,3 @@ Contributions, feature requests, and bug reports are welcome! Feel free to open 
 
 ---
 
-## 📝 License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
