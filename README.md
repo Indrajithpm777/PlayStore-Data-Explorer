@@ -119,18 +119,6 @@ This document outlines the data cleaning, preprocessing, and feature engineering
 * **Rationale:** Standard boolean columns (`free`, `contains_ads`, `offers_iap`) require multi-variable logic to understand actual app business models. This function categorizes apps into mutually exclusive groups: `Paid`, `Free with Ads and IAP`, `Free with Ads`, `Free with IAP`, or `Free without Ads or IAP`.
 
 ---
-## 📂 Project Structure
-```text
-google-play-apps-analysis/
-│
-├── data/
-│   └── google_play_apps_2026_sample (2).csv
-│
-├── notebooks/
-│   └── google_play_apps_analysis.ipynb
-│
-├── outputs/
-│   └── figures/          # Generated charts and graphs
-│
-├── requirements.txt      # Python dependencies
-└── README.md
+
+
+
