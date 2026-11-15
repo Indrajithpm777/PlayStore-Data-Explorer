@@ -25,7 +25,7 @@
 8. [Data Cleaning & Preprocessing](#-data-cleaning--preprocessing)
 9. [Exploratory Data Analysis](#-exploratory-data-analysis)
 10. [Business Insights & Recommendations](#-business-insights--recommendations)
-11. [Scope, Assumptions & Limitations](#-scope--assumptions--limitations)
+11. [Scope, Assumptions & Limitations](#-scope-assumptions--limitations)
 
 
 ---
@@ -421,7 +421,7 @@ Feedback volume scales predictably with adoption across genres. High-reach socia
 
 ---
 
-## ⚠️ Scope, Assumptions & Limitations
+## ⚠️ Scope-Assumptions & Limitations
 
 **In scope:** the 100,013 listings and 19 fields in the single file, analysed descriptively.
 **Out of scope:** revenue, downloads over time, user demographics, review text, rankings, and anything outside the file.
