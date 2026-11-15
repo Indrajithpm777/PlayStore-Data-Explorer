@@ -26,10 +26,6 @@
 9. [Exploratory Data Analysis](#-exploratory-data-analysis)
 10. [Business Insights & Recommendations](#-business-insights--recommendations)
 11. [Scope, Assumptions & Limitations](#-scope-assumptions--limitations)
-12. [Repository Structure](#-repository-structure)
-13. [How to Run](#-how-to-run)
-14. [Future Work](#-future-work)
-15. [Author](#-author)
 
 ---
 
