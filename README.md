@@ -25,7 +25,7 @@
 8. [Data Cleaning & Preprocessing](#-data-cleaning--preprocessing)
 9. [Exploratory Data Analysis](#-exploratory-data-analysis)
 10. [Business Insights & Recommendations](#-business-insights--recommendations)
-11. [Scope, Assumptions & Limitations](#-scope-assumptions--limitations)
+11. [Scope, Assumptions & Limitations](#scope-assumptions--limitations)
 
 
 ---
