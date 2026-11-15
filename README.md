@@ -1,175 +1,445 @@
-# Google Play Apps 2026 Analysis
+# 📱 Play Store App Demographics & Technology: Category Adoption and User Base
 
-## 📌 Project Overview
-The Google Play Store hosts millions of applications, making it challenging to identify the key factors driving high install counts, positive user ratings, and long-term user retention. This project processes and analyzes a 2026 sample of Google Play app listings (`100,013 rows × 19 columns`). 
+> An end-to-end exploratory data analysis (EDA) of **100,013 Google Play apps** (2026 sample): what drives installs, ratings, monetisation choices and developer success.
 
-The primary objective is to transition from intuition-based development and marketing decisions to an evidence-based framework, helping developers, market analysts, and investors spot crowded categories, understand monetisation strategies, and evaluate maintenance patterns.
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![Pandas](https://img.shields.io/badge/pandas-data%20analysis-150458?logo=pandas&logoColor=white)
+![Matplotlib](https://img.shields.io/badge/matplotlib-visualisation-11557c)
+![Seaborn](https://img.shields.io/badge/seaborn-statistical%20plots-4c72b0)
+![Plotly](https://img.shields.io/badge/plotly-interactive%20charts-3F4F75?logo=plotly&logoColor=white)
+![Jupyter](https://img.shields.io/badge/Jupyter-notebook-F37626?logo=jupyter&logoColor=white)
+
+**Domain:** App-Store Analytics & Technology  |  **Type:** Exploratory Data Analysis  |  **Records:** 100,013  |  **Features:** 19 raw → 22 after feature engineering
+
+---
+
+## 📑 Table of Contents
+
+1. [Project Overview](#-project-overview)
+2. [Business Problem](#-business-problem)
+3. [Objectives](#-objectives)
+4. [Key Findings at a Glance](#-key-findings-at-a-glance)
+5. [Dataset](#-dataset)
+6. [Tools & Technologies](#-tools--technologies)
+7. [Project Workflow](#-project-workflow)
+8. [Data Cleaning & Preprocessing](#-data-cleaning--preprocessing)
+9. [Exploratory Data Analysis](#-exploratory-data-analysis)
+10. [Business Insights & Recommendations](#-business-insights--recommendations)
+11. [Scope, Assumptions & Limitations](#-scope-assumptions--limitations)
+12. [Repository Structure](#-repository-structure)
+13. [How to Run](#-how-to-run)
+14. [Future Work](#-future-work)
+15. [Author](#-author)
+
+---
+
+## 🔭 Project Overview
+
+The mobile app market is hyper-competitive. Developers, product managers and analysts struggle to tell **which genres have real demand**, **how monetisation choices (ads, in-app purchases, paid) relate to engagement**, and **who actually captures users**.
+
+This project analyses a sample of **100,013 Google Play listings** to answer those questions. It covers the full analytics workflow: data inspection, cleaning, feature engineering, and univariate, bivariate and multivariate analysis, finishing with a business-focused summary.
+
+---
+
+## 💼 Business Problem
+
+Understanding what users really want in a crowded app market is difficult. Genre interest, release trends, engagement levels, ratings and reviews are the signals that matter, but they only become useful once the data is cleaned, structured and compared properly.
+
+**Who benefits from this analysis**
+
+| Audience | How they can use it |
+|---|---|
+| App developers | Pick genres and monetisation models with proven demand |
+| Product managers | Align update cycles and features with market behaviour |
+| Market researchers / analysts | Benchmark categories, developers and adoption tiers |
+| Investors | Spot crowded vs. under-served segments |
 
 ---
 
 ## 🎯 Objectives
-* **Profile the Market:** Analyze app counts, games versus non-games distribution, and category/genre concentration.
-* **Evaluate Monetisation Strategies:** Compare free vs. paid apps and ads-supported vs. in-app purchase (IAP) models against popularity metrics and ratings.
-* **Measure User Satisfaction:** Investigate user scores, rating volumes, and review behavior across different genres and content ratings.
-* **Assess App Freshness & Lifespan:** Analyze release timelines and update frequencies to measure developer maintenance health[cite: 1].
-* **Identify Market Leaders:** Discover top developers and categories dominating market reach and user engagement[cite: 1].
+
+| # | Question | Approach |
+|---|---|---|
+| 1 | Which genres dominate in volume and downloads? | `groupby('genre')` on average installs |
+| 2 | What patterns exist between engagement metrics? | Compare installs, ratings, reviews, score and content rating |
+| 3 | Which developers build the most successful apps? | Total installs per developer, plus a deep dive on Meta and individual developers |
+| 4 | What is the real share of games vs. non-games? | Proportion of `is_game` |
+| 5 | How does monetisation vary across genres? | Paid / free / ads / in-app purchase (IAP) breakdown |
 
 ---
 
-## 📊 Dataset Description
-* **Source File:** `google_play_apps_2026_sample (2).csv`[cite: 1]
-* **Size:** ~100,013 rows and 19 columns[cite: 1]
-* **Key Attributes:**
-  * **Identity:** `app_id`, `title`, `developer`, `developer_domain`[cite: 1]
-  * **Category:** `genre`, `is_game`, `content_rating`[cite: 1]
-  * **Popularity:** `installs` (banded text values like `"1,000+"`), `ratings`, `reviews`[cite: 1]
-  * **Quality:** `score` (Average rating from 0 to 5)[cite: 1]
-  * **Monetisation:** `free`, `price`, `currency`, `contains_ads`, `offers_iap`[cite: 1]
-  * **Timeline:** `released`, `last_updated`[cite: 1]
+## ⚡ Key Findings at a Glance
+
+| Finding | Result |
+|---|---|
+| Free apps | **98.5%** of the catalogue (98,537 free vs 1,476 paid) |
+| Games vs non-games | **85.3%** non-games, **14.7%** games |
+| Median user score | **4.20** (mean 4.15) |
+| Top genres by average installs | **Social** (~8.5M) and **Music** (~5.6M) |
+| Most common genre | **Education** (10,438 apps) |
+| Developers | **37,480** unique developers; the "Individual developer" label alone covers **6,022** apps |
+| Installs vs ratings | Strong positive correlation, **r = 0.96** |
+| Installs vs reviews | Strong positive correlation, **r = 0.92** |
+| Price vs score | Essentially none, **r ≈ 0.00** |
+| Largest developer by total installs | **Meta Platforms, Inc.** (12 apps in this sample) |
 
 ---
 
-## 🛠️ Tools and Technologies
-* **Language:** Python 3.10+[cite: 1]
-* **Environment:** Jupyter Notebook[cite: 1]
-* **Libraries:**
-  * `pandas` & `NumPy` for data cleaning, transformation, and KPI calculation[cite: 1]
-  * `matplotlib` & `seaborn` for exploratory data visualization (histograms, box plots, correlation heatmaps, bar charts)[cite: 1]
+## 🗂️ Dataset
+
+| Property | Detail |
+|---|---|
+| **Source** | [Kaggle: Google Play Apps 2026 (starter)](https://www.kaggle.com/code/fliarbi/google-play-apps-2026-starter/input?select=google_play_apps_2026_sample.csv) |
+| **File** | `google_play_apps_2026_sample.csv` |
+| **Format** | CSV |
+| **Size** | 100,013 rows × 19 columns (22 after feature engineering, 1 dropped) |
+| **One row =** | One mobile application listed on Google Play, with its usage stats, metadata, monetisation model and publisher |
+| **Primary key** | `app_id` (verified unique) |
+
+### Data dictionary
+
+| Group | Column | Description |
+|---|---|---|
+| Identity | `app_id` | Unique package name (primary key) |
+| | `title` | App name |
+| | `developer` | Publisher name |
+| | `developer_domain` | Publisher website domain |
+| Category | `genre` | One of 48 genres |
+| | `is_game` | `True` if the app is a game |
+| | `content_rating` | Age-suitability rating (5 levels) |
+| Adoption | `installs` | Install band as text, e.g. `"10,000+"` |
+| | `released` | Release date |
+| | `last_updated` | Date of last update |
+| Engagement | `score` | Average user rating (1.0 to 5.0) |
+| | `ratings` | Number of star ratings |
+| | `reviews` | Number of written reviews |
+| Monetisation | `free` | `True` if free to download |
+| | `price` | Price in USD (the only currency in the data) |
+| | `contains_ads` | `True` if the app shows ads |
+| | `offers_iap` | `True` if it offers in-app purchases |
+| Dropped | `fliar_profile_url` | External link, removed during cleaning |
+
+### Engineered features (added in this project)
+
+| Column | How it is built |
+|---|---|
+| `released_year` | Year taken from `released` |
+| `last_updated_year` | Year taken from `last_updated` |
+| `app_age` | `last_updated_year - released_year` |
+| `monetization_category` | One label per app: `Paid`, `Free with Ads and IAP`, `Free with Ads`, `Free with IAP` or `Free without Ads and IAP` |
+
+---
+
+## 🛠️ Tools & Technologies
+
+| Tool | Purpose |
+|---|---|
+| Python 3.10+ | Core language |
+| Jupyter Notebook | Interactive analysis and documentation |
+| pandas, NumPy | Cleaning, imputation, feature engineering, aggregation |
+| matplotlib, seaborn | Static charts (bar, pie, histogram, box plot, heatmap, scatter) |
+| plotly express | Interactive histogram and bubble chart |
 
 ---
 
 ## 🔄 Project Workflow
-1. **Data Loading & Validation:** Loaded the raw CSV file safely using Pandas, checking data types, memory usage, and initial row dimensions.
-2. **Data Preprocessing & Cleaning:**
-   * Handled missing values and removed duplicate entries while tracking drop counts.
-   * Converted text-banded `installs` data into clean numeric values (using lower bounds of bands).
-   * Standardized text fields for `genre` and `content_rating`.
-   * Engineered derived features: app age (years), days since last update, a binary `stale` flag (no updates in 12+ months), release year, and install-tier bands.
-   * Addressed multi-currency price distributions and outliers.
-3. **Exploratory Data Analysis (EDA) & KPI Calculation:** Computed key performance metrics covering market composition, median installs, pricing structures, monetisation overlaps, and maintenance health.
-4. **Data Visualization:** Generated publication-quality charts and plots with clear labeling to illustrate distributions and segment comparisons[cite: 1].
+
+```
+ Load CSV ─► Inspect ─► Clean & impute ─► Engineer features ─► Univariate EDA
+                                                                      │
+ Executive summary ◄─ Multivariate EDA ◄─ Bivariate EDA ◄────────────┘
+```
 
 ---
 
-## 📈 Key Analysis & Business Questions Explored
-* Which genres command the highest volume of installs versus user ratings?
-* Do ads-supported or IAP-based models correlate better with higher user scores?
-* What percentage of apps on the Google Play Store suffer from lack of maintenance (stale for 12+ months)?
-* How does app pricing affect user download behavior across paid and free segments?
+## 🧹 Data Cleaning & Preprocessing
+
+### Step 0: Inspect the raw data
+
+```python
+import pandas as pd
+
+apps = pd.read_csv("google_play_apps_2026_sample.csv")
+
+apps.shape                  # (100013, 19)
+apps.info()                 # data types + non-null counts
+apps.duplicated().sum()     # 0  -> no duplicate rows
+apps['app_id'].is_unique    # True -> app_id is a valid primary key
+apps.isna().sum()           # missing values per column
+```
+
+### Missing values found
+
+| Column | Missing | Share | Treatment |
+|---|---:|---:|---|
+| `score` | 68,258 | 68.2% | Median of the same `genre` |
+| `ratings` | 68,258 | 68.2% | Median of the same `installs` tier |
+| `reviews` | 68,258 | 68.2% | Median of the same `installs` tier |
+| `developer_domain` | 36,486 | 36.5% | Filled with `'No-Domain'` |
+| `released` | 17,467 | 17.5% | Kept as `NaT` (rows not dropped) |
+| `price` | 13 | 0.01% | Median of the same `genre` |
+| `fliar_profile_url` | 69,638 | 69.6% | Column dropped |
+
+> Nothing was deleted: every treatment preserves all **100,013 rows**.
+
+### Step-by-step with code
+
+**1. Fill missing `score` with the genre median.**
+A missing score for a Puzzle game should look like other Puzzle games, not like the whole store.
+
+```python
+apps['score'] = apps['score'].fillna(
+    apps.groupby('genre')['score'].transform('median')
+)
+```
+
+**2. Drop `fliar_profile_url`.**
+About 70% empty and it is only a link, so it adds nothing to the objectives.
+
+```python
+apps.drop(columns='fliar_profile_url', inplace=True)
+```
+
+**3. Convert `installs` from text to numbers.**
+Values like `"10,000,000+"` are strings; numbers are needed to sort, average and plot.
+
+```python
+apps['installs'] = (
+    apps['installs']
+    .str.replace('+', '', regex=False)    # "10,000,000+" -> "10,000,000"
+    .str.replace(',', '', regex=False)    # "10,000,000"  -> "10000000"
+)
+apps['installs'] = apps['installs'].astype(int)
+```
+
+**4. Fill `ratings` and `reviews` using the install tier.**
+Apps with 1M installs collect far more ratings than apps with 1K, so each gap is filled from apps of similar size.
+
+```python
+apps['ratings'] = apps['ratings'].fillna(
+    apps.groupby('installs')['ratings'].transform('median')
+).astype(int)
+
+apps['reviews'] = apps['reviews'].fillna(
+    apps.groupby('installs')['reviews'].transform('median')
+).astype(int)
+```
+
+**5. Fill `price` and `developer_domain`.**
+
+```python
+# 13 missing prices -> median price of the same genre
+apps['price'] = apps['price'].fillna(
+    apps.groupby('genre')['price'].transform('median')
+)
+
+# Missing domain -> explicit placeholder so these rows stay in publisher analysis
+apps['developer_domain'] = apps['developer_domain'].fillna('No-Domain')
+```
+
+**6. Standardise column names and titles.**
+
+```python
+apps.columns = apps.columns.str.strip()      # remove stray spaces in headers
+
+# remove non-ASCII junk characters from app titles
+apps['title'] = (
+    apps['title'].str.replace(r"[^\x00-\x7F]+", "", regex=True).str.strip()
+)
+```
+
+**7. Convert dates to real datetimes.**
+Unparseable or missing release dates become `NaT` instead of crashing or forcing a row drop.
+
+```python
+apps['released']     = pd.to_datetime(apps['released'])
+apps['last_updated'] = pd.to_datetime(apps['last_updated'])
+```
+
+**8. Create time-based features.**
+`Int64` (capital I) is pandas' nullable integer, so apps with no release date stay `<NA>` instead of raising errors.
+
+```python
+apps['released_year']     = apps['released'].dt.year.astype('Int64')
+apps['last_updated_year'] = apps['last_updated'].dt.year
+apps['app_age']           = apps['last_updated_year'] - apps['released_year']
+```
+
+**9. Build one monetisation label from three True/False columns.**
+
+```python
+def categorize_monetization(row):
+    if not row['free']:
+        return 'Paid'
+    if row['contains_ads'] and row['offers_iap']:
+        return 'Free with Ads and IAP'
+    if row['contains_ads']:
+        return 'Free with Ads'
+    if row['offers_iap']:
+        return 'Free with IAP'
+    return 'Free without Ads and IAP'
+
+apps['monetization_category'] = apps.apply(categorize_monetization, axis=1)
+```
+
+### Final check after cleaning
+
+```python
+apps.info()        # 22 columns; the only nulls left are released, released_year and app_age (17,467 apps with no release date)
+apps['monetization_category'].value_counts()
+```
 
 ---
-# Data Cleaning & Preprocessing
 
-This document outlines the data cleaning, preprocessing, and feature engineering steps executed on the Google Play Store dataset ($N = 100,013$ apps) inside the Jupyter Notebook. Each section details the analytical action, the technical method or function used, and the underlying rationale.
+## 📊 Exploratory Data Analysis
 
----
+**Summary statistics (after cleaning)**
 
-### 1. Imputing Missing Performance Metrics (`score`)
-
-* **Action:** Resolved missing values in the `score` column without dropping records, preserving the full sample size.
-* **Method/Function Used:** Pandas `fillna()` combined with `groupby('genre')['score'].transform('median')`.
-* **Rationale:** Niche or newly listed apps often lack score metrics. Grouping by application `genre` and imputing with the group median ensures that the substitute values align with category-specific rating benchmarks rather than a global average that might distort genre characteristics.
-
-### 2. Dropping Redundant Metadata (`fliar_profile_url`)
-
-* **Action:** Removed the `fliar_profile_url` column entirely from the DataFrame.
-* **Method/Function Used:** Pandas `drop(columns='fliar_profile_url', inplace=True)`.
-* **Rationale:** The column only contained valid data for roughly 30% of records and served solely as an external URL reference, offering no analytical utility toward core evaluation objectives.
-
-### 3. Cleaning and Casting Adoption Scale (`installs`)
-
-* **Action:** Standardized string values and converted the `installs` column into a discrete integer data type.
-* **Method/Function Used:** Pandas `.str.replace('+', '', regex=False)`, `.str.replace(',', '', regex=False)`, and `.astype(int)`.
-* **Rationale:** Raw install metrics included trailing plus signs and comma separators (e.g., `10,000,000+`), which restricted them to string object types. Removing these formatting characters enables proper numerical aggregation and sorting.
-
-### 4. Groupby Median Imputation for Adoption Metrics (`ratings` & `reviews`)
-
-* **Action:** Imputed missing values for `ratings` and `reviews` using adoption tier metrics, then cast them to integers (`int64`).
-* **Method/Function Used:** Pandas `fillna()` with `groupby('installs')['ratings'].transform('median')` and `groupby('installs')['reviews'].transform('median')`, followed by `.astype(int)`.
-* **Rationale:** User engagement metrics scale proportionally with download volume. Grouping missing entries by their `installs` tier and applying the median maintains realistic scaling relationships across adoption tiers.
-
-### 5. Imputing Pricing and Developer Domains
-
-* **Action:** Filled missing values in `price` and `developer_domain`.
-* **Method/Function Used:** Pandas `fillna()` grouped by `genre` median for `price`, and a static string replacement (`'No-Domain'`) for `developer_domain`.
-* **Rationale:** Resolving the 13 missing price values using category-specific medians prevents distortion in monetization analyses, while placeholder strings for missing domains prevent null-pointer exclusions during publisher analysis.
-
-### 6. Standardizing Column Headers and Text Fields
-
-* **Action:** Stripped trailing/leading whitespace from all column names and purged non-ASCII special characters from app titles.
-* **Method/Function Used:** Pandas `.columns.str.strip()` and `.str.replace(r"[^\x00-\x7F]+", "", regex=True)`.
-* **Rationale:** Eliminates syntax errors during programmatic column referencing and standardizes text display by stripping corrupted or non-standard characters from titles.
-
-### 7. Datetime Parsing and Temporal Null Handling (`released` & `last_updated`)
-
-* **Action:** Converted release and update date strings into standardized datetime objects (`datetime64[us]`).
-* **Method/Function Used:** Pandas `pd.to_datetime()`.
-* **Rationale:** Automatically flags unparseable or missing release dates as `NaT` (Not a Time) without dropping rows, preserving historical records for alternative analyses where release timestamps are optional.
-
-### 8. Feature Engineering: Temporal Metrics (`released_year`, `last_updated_year`, `app_age`)
-
-* **Action:** Extracted temporal components and calculated application lifespan using nullable integer architecture.
-* **Method/Function Used:** Pandas `.dt.year` accessor and `.astype('Int64')`.
-* **Rationale:** Utilizing Pandas' nullable integer extension type (`Int64` with a capital `I`) allows calculations involving `NaT` values to propagate cleanly as `<NA>` rather than throwing type-casting errors.
-
-### 9. Feature Engineering: Custom Monetization Categorization (`monetization_category`)
-
-* **Action:** Built a composite classification feature mapping business and revenue models.
-* **Method/Function Used:** Custom Python function evaluated row-wise via `apps.apply(categorize_monetization, axis=1)`.
-* **Rationale:** Standard boolean columns (`free`, `contains_ads`, `offers_iap`) require multi-variable logic to understand actual app business models. This function categorizes apps into mutually exclusive groups: `Paid`, `Free with Ads and IAP`, `Free with Ads`, `Free with IAP`, or `Free without Ads or IAP`.
+| Metric | Value |
+|---|---|
+| Installs range | 1,000 to 10,000,000,000 (median 5,000; mean ≈ 651,966) |
+| Score range | 1.0 to 5.0 (median 4.20, mean 4.15) |
+| Price | Median and 75th percentile = $0.00; maximum = $294.99 |
+| Average app age | About 4 years; releases span 2010 to mid-2026 |
+| Unique genres / developers / titles | 48 / 37,480 / 91,254 |
 
 ---
 
-# 📊 Play Store App Demographics and Technology: Exploratory Data Analysis (EDA)
+### 🔹 Univariate Analysis (one variable at a time)
 
-An in-depth Exploratory Data Analysis (EDA) of **100,013 mobile applications** sourced from the Google Play Store sample dataset. This document details the statistical distributions, univariate trends, bivariate relationships, and multivariate interactions uncovered during the evaluation phase.
+#### App age distribution
+![App age distribution](images/01_app_age_distribution.png)
 
----
+Most apps are **0 to 3 years old**, with a sharp drop-off beyond that. This points to high developer turnover: apps are replaced by newer versions or removed if they fail to hold users.
 
-## 📈 Statistical Summary & Dataset Overview
-Following data preprocessing and feature engineering, the dataset encompasses **100,013 rows and 22 structured features**:
-* **Catalog Scale:** Install volumes span from a minimum of $1,000$ to over $10,000,000,000$, with a mean of ~651,966 installs.
-* **Pricing Dynamics:** While the median and 75th percentile for price sit at $0.00$ (reflecting a predominantly free ecosystem), the maximum price reaches **$294.99**, capturing premium utility and niche professional software.
-* **User Sentiment Stability:** App scores range from $1.0$ to $5.0$, with a median of **4.20** and a mean of **4.15**, proving that active listings on the Play Store generally maintain positive user satisfaction.
-* **App Age & Lifespan:** The average app age in the sample is approximately **4 years**, with releases spanning from 2010 up to mid-2026.
-* **Genre Frequency:** *Education* emerges as the most frequently occurring genre (10,438 entries) in this specific sample, while USD serves as the universal currency.
+#### Score distribution
+![Score distribution](images/02_score_distribution.png)
 
----
+The distribution is left-skewed, with most scores between **4.0 and 4.6**. The sharp peak around 4.0 to 4.3 is partly an effect of filling the 68% missing scores with genre medians.
 
-## 🔍 Exploratory Data Analysis Breakdown
+#### Releases per year
+![Releases per year](images/03_releases_per_year.png)
 
-### 1. Univariate Analysis (Single-Variable Exploration)
-* **App Age Distribution:** Heavily concentrated toward the lower end of the age spectrum, peaking sharply between **0 to 3 years old**. This steep drop-off in older brackets highlights high developer turnover—many apps are frequently updated as new versions or abandoned/delisted if they fail to maintain active user engagement.
-* **Score Distribution:** Exhibits a left-skewed distribution clustered heavily between **4.0 and 4.6**. A noticeable sharp peak appears around 4.0–4.3 due to genre-level median imputations for missing values.
-* **Releases Over Time:** App releases grew steadily through the late 2010s, accelerating sharply post-2020 to reach peak annual volumes (~10,000+ apps/year) during 2024–2025 before dropping in 2026 due to the mid-year dataset snapshot cutoff.
-* **Game vs. Non-Game Proportion:** Non-game applications dominate catalog volume at **85.3%**, while mobile games account for 14.7%. Despite smaller volume, gaming genres capture half of the top spots for average installs.
-* **Monetization Breakdown:** Over **98%** of apps are free. Paid apps make up a niche 1.5% minority, while ad-supported models (*Free with Ads*) serve as the primary monetization vehicle.
+Releases grew steadily through the 2010s and accelerated after 2020, peaking at roughly **10,000+ apps per year in 2024 to 2025**. The 2026 dip is not a slowdown: the snapshot ends in mid-2026, so only half the year is captured.
 
-### 2. Bivariate Analysis (Two-Variable Relationships)
-* **Top Genres by Average Ratings & Installs:** 
-  * *Social* and *Music* lead average user adoption (~8.5M and ~5.6M average installs respectively), driven by massive flagship applications like Facebook.
-  * *Action*, *News & Magazines*, and *Communication* form a strong second tier.
-* **Developer Ecosystem Analysis:** While indie developers (*Individual developer*) contribute over 6,000 catalog entries, global download volume and engagement are heavily led by tech giants like **Meta Platforms, Inc.**
-* **Independent Developer Performance:** Solo developers successfully target high-demand utility categories (e.g., *Tools* like File Manager achieving 1B+ installs), though textual review counts drop off compared to casual star ratings.
-* **Content Ratings & Scores:** *Everyone* and *Teen* categories display the widest spread of score outliers due to housing the vast majority of applications.
+#### Games vs non-games
+![Game vs non-game](images/04_game_vs_nongame.png)
 
-### 3. Multivariate Analysis (Multi-Variable Interactions)
-* **Monetization Across Top Genres:** *Education* dominates the *Free without Ads and IAP* tier (funneling users to premium content), whereas *Music & Audio* predominantly utilizes ad-supported free models with subscription upsells.
-* **Installs vs. Ratings (Log-Log Scale):** Confirms a strong, predictable scaling relationship between adoption volume and user feedback across top genres.
-* **Correlation Heatmap Findings:**
-  * **Strong Positive Correlation:** Installs correlate strongly with ratings ($r = 0.96$) and reviews ($r = 0.92$).
-  * **Strong Negative Correlation:** App age and release year ($r = -0.88$), as older release years naturally yield higher app ages.
-  * **Near-Zero Correlation:** Price shows zero correlation with scores ($r \approx 0.00$), as the overwhelming majority of successful apps operate on free or ad-supported models.
+Non-game apps make up **85.3%** of the sample and games **14.7%**. Even so, gaming genres take half of the top 10 spots for average installs per app.
+
+#### Monetisation breakdown
+![Monetisation breakdown](images/05_monetization_breakdown.png)
+
+Free apps rule the store (**98.5%**) and paid apps are a **1.5%** niche. Among free apps, ad-supported apps form the second-largest group, making ads the most common way to earn while keeping the download free.
 
 ---
 
-## 🎯 Executive Summary & Key Takeaways
+### 🔹 Bivariate Analysis (two variables)
 
-1. **The Free-To-Download Economy Rules:** Over 98% of apps are free, relying on ad-supported models to maintain high acquisition while generating revenue.
-2. **Indie Volume vs. Enterprise Scale:** The Play Store ecosystem relies on a duality: millions of independent developers supplying lightweight utility and education apps, versus a handful of tech giants (like Meta) capturing the bulk of global user engagement.
-3. **The Illusion of Scale vs. Engagement:** While total installs correlate heavily with star ratings ($r = 0.96$), text review volumes drop sharply for independent utility apps—indicating users frequently tap star ratings for permissions/prompts without leaving qualitative feedback unless an app is exceptional or broken.
+#### Top 10 genres by average ratings
+![Top genres by average ratings](images/06_top_genres_avg_ratings.png)
+
+**Social** leads with an average of about 100,000+ ratings per app. Communication, Trivia and Action follow as the most actively rated categories.
+
+#### Top 10 genres by average installs
+![Top genres by average installs](images/07_top_genres_avg_installs.png)
+
+- **Social (~8.5M)** and **Music (~5.6M)** lead average adoption, pulled up by flagship apps such as Facebook.
+- **Action, News & Magazines and Communication** form a second tier at roughly 2.6M to 3.0M average installs.
+- Game genres (Action, Arcade, Simulation, Board, Trivia) make up half of the top 10.
+
+#### Top 10 developers by total installs
+![Top developers](images/08_top_developers_installs.png)
+
+**Meta Platforms, Inc.** leads total installs with only **12 apps** in the sample. Its apps sit mainly in Social, Communication and Business.
+
+#### Individual developers: top genres
+![Individual developers top genres](images/09_indie_top_genres.png)
+
+"Individual developer" is the most frequent publisher label (**6,022 apps**, against 37,480 unique developers). Solo creators concentrate on **Tools**, serving lightweight, specific user needs.
+
+#### Individual developers: top apps
+![Individual developers top apps](images/10_indie_top_apps.png)
+
+| App | Genre | Installs | Score | Ratings | Reviews |
+|---|---|---:|---:|---:|---:|
+| File Manager | Tools | 1,000,000,000 | 4.40 | 192,119 | 407 |
+| My Health | Health & Fitness | 100,000,000 | 3.91 | 49,391 | 89 |
+| Music Piano 7: Rush Song Games | Music | 50,000,000 | 4.73 | 397,226 | 2,560 |
+| Camera for Android | Photography | 50,000,000 | 4.78 | 363,148 | 5,382 |
+| App Lock - Fingerprint Pattern | Tools | 50,000,000 | 4.20 | 163,387 | 1,577 |
+
+The top solo-developer app has **1B+ installs but only 407 written reviews**: users tap stars readily but rarely write text for utility apps. Photography and Music apps show the highest satisfaction.
+
+#### Score by content rating
+![Score by content rating](images/11_score_by_content_rating.png)
+
+The **Everyone** and **Teen** groups show the widest spread of low-score outliers, simply because they hold the vast majority of apps.
 
 ---
 
+### 🔹 Multivariate Analysis (three or more variables)
 
+#### App age vs score, by monetisation (bubble size = ratings)
+![App age vs score](images/12_app_age_vs_score.png)
+
+*Static snapshot of an interactive plotly chart (random sample of 5,000 apps).*
+
+- The biggest bubbles (high rating volume) sit mostly in the **0 to 5 year** range.
+- Older apps (5 to 15 years) use a wider mix of monetisation models.
+- Scores stay between roughly **4.0 and 5.0** whether an app is new or a veteran.
+
+#### Monetisation across the top 5 genres
+![Monetisation across top genres](images/13_monetization_top5_genres.png)
+
+- "Free without Ads and IAP" and "Free with Ads" dominate in every major genre.
+- **Education** leads the "Free without Ads and IAP" group, a pattern consistent with funnelling learners to paid courses.
+- **Music & Audio** leans on ad-supported free apps with subscription upgrades.
+
+#### Installs vs ratings (log-log)
+![Installs vs ratings](images/14_installs_vs_ratings.png)
+
+Feedback volume scales predictably with adoption across genres. High-reach social and utility apps occupy the top tiers, while specialised and educational apps sit in lower-volume tiers.
+
+#### Correlation heatmap
+![Correlation heatmap](images/15_correlation_heatmap.png)
+
+| Pair | Correlation | Reading |
+|---|---:|---|
+| installs ↔ ratings | **0.96** | Strong positive |
+| installs ↔ reviews | **0.92** | Strong positive |
+| app_age ↔ released_year | **-0.88** | Expected: app age is derived from release year |
+| price ↔ score | **≈ 0.00** | A higher price does not mean a better rating |
+
+---
+
+## 💡 Business Insights & Recommendations
+
+1. **Free-to-download is the norm.** With 98.5% of apps free, charging upfront is an uphill choice. Ads (and IAP) are the realistic monetisation path.
+2. **Two ecosystems coexist.** Thousands of independent developers serve niche utility needs, while a handful of tech giants such as Meta capture most total installs. Indie developers should compete on focused utility, not breadth.
+3. **Genre choice shapes reach.** Social and Music lead average installs, but those averages are pulled up by a few flagship apps. Education is the most crowded genre, so differentiation matters.
+4. **Quality is stable, volume is not.** Scores stay around 4.0 to 4.6 across ages and genres; installs and rating volume vary by orders of magnitude.
+5. **Don't read stars as depth.** Large utility apps get many star ratings but few written reviews, so review text is a weaker signal than rating counts.
+6. **Price is not a quality signal.** Price has no relationship with score here.
+
+---
+
+## ⚠️ Scope, Assumptions & Limitations
+
+**In scope:** the 100,013 listings and 19 fields in the single file, analysed descriptively.
+**Out of scope:** revenue, downloads over time, user demographics, review text, rankings, and anything outside the file.
+
+**Assumptions:** each row is a distinct, currently listed app; install bands and scores are accurate as scraped.
+
+**Limitations**
+
+- **Sample data.** The file is a sample, so conclusions apply to this sample, not the entire Play Store.
+- **Installs are bands, not exact counts.** The lower bound of each band is used, which limits precision.
+- **Heavy imputation.** 68% of `score`, `ratings` and `reviews` were missing and filled with medians. This creates the visible spike near 4.0 to 4.3 in scores. Because ratings and reviews were filled using the `installs` tier, part of the strong installs-vs-ratings correlation (0.96 / 0.92) may reflect that imputation, so treat those values as indicative. Re-checking on only the apps with real ratings would be a good validation.
+- **Missing release dates.** 17,467 apps have no release date, so age-based analysis covers only apps with a date.
+- **Single snapshot.** The data cannot show how an app changes over time.
+- **Correlation is not causation.** For example, ads and ratings may move together without one causing the other.
+- **Small-rating scores are unreliable.** Scores based on very few ratings should be read cautiously.
+
+---
 
